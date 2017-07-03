@@ -7,13 +7,6 @@ function validarEspacios($value){
     return true;
 }
 
-// function validarCorreo($value){
-//   if(filter_var($valor, FILTER_VALIDATE_EMAIL))
-//     return true;
-//   else
-//     return false;
-// }
-
 function sinNumeros($value){
   $longitud = strlen($value);
 
@@ -23,58 +16,55 @@ function sinNumeros($value){
   }
   return true;
 }
-
-function validarCorreo($value){
-  $sintaxis = "#^[\w.-]+@[\w.-]+\.[a-zA-Z]{2,6}$#";
-    if(preg_match($sintaxis,$value))
-      return true;
-    else
-      return false;
-}
-
-// function validarAlfabeto($value){
-//   if (ereg("^[a-zA-Z0-9\-_]{3,20}$", $value))
-//     return true;//nombre valido
-//   else
-//     return false;
-// }
-//
-// function soloLetras($value){
-//   if(preg_match('/[^a-Z]/',$value))
-//     return true;
-//   else
-//     return false;
-// }
-
 //=================================
+//================================
+// $destino  = "pprm29@gmail.com";
+// $destino .= ", caifaguar.jm@gmail.com";
+$destino  = "caifaguar.jm@gmail.com";
 
-$destino1 = "pprm29@gmail.com";
-// $destino2 = "caifaguar.jm@gmail.com";
-// $destino  = $destino1.", ".$destino2;
-$destino = $destino1;
 $nombre  = isset($_POST['nombre'])  ? $_POST['nombre']  : null;
 $correo  = isset($_POST['correo'])  ? $_POST['correo']  : null;
 $asunto  = isset($_POST['asunto'])  ? $_POST['asunto']  : null;
 $mensaje = isset($_POST['mensaje']) ? $_POST['mensaje'] : null;
+$captcha = $_POST['g-recaptcha-response'];
 
-$contenido = "Nombre: ".$nombre."\nemail: ".$correo."\nAsunto: ".$asunto."\nMensaje:\n\n".$mensaje;
+$secret  = "";
+if (!$captcha)
+  echo "verifica captcha";
+
+$contents  = "https://www.google.com/recaptcha/api/siteverify?";
+$contents .= "secret=$secret&response=$captcha";
+$response = file_get_contents($contents);
+
+var_dump($response);
+$arr = json_decode($response,TRUE);
+
+
+$headers  = "From: $nombre <$correo>\r\n";
+$headers .= "X-Mailer: PHP5\n";
+$headers .= 'MIME-Version: 1.0'."\n";
+$headers .= 'Content-type: text/html; charset = iso-8859-1'."\r\n";
+
+$contenido  = "Nombre: ".$nombre."<br>";
+$contenido .= "email: ".$correo."<br>";
+$contenido .= "Asunto: ".$asunto."<br>";
+$contenido .= "Mensaje:<br>".$mensaje;
 
 //variable para errores.
-$error  = true;
-
+$error  = false;
 //validando datos ingresados.
 //verificamos que se envíe el formulario.
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
   if(!sinNumeros($nombre) || !validarEspacios($mensaje))
-    $error = false;
+    $error = true;
 
   //verificamos si hay errores.
-  if($error){
-    mail($destino,$asunto,$contenido);
+  if(!$error && $arr['success']){
+    mail($destino,$asunto,$contenido,$headers);
     header('Location: validado.html');
     exit;
   }
   else
-    header('Location: contacto.html');
+    header('Location: form.html');
 }
 ?>
