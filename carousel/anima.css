@@ -1,0 +1,19 @@
+.imagen {
+    width: 100%;
+    height: auto;
+}
+
+#maquina {
+ background: url(01.png) no-repeat center center;/*left top; /*La dirección de donde esta la imagen*/
+ width: 775px;/*El ancho de una sola imagen de la que se compone 01.png*/
+ height: 509px;/*La altura de la imagen*/
+ margin: 0 auto;
+ box-shadow: 0 0 3px #444;
+ animation: maquina_escribir 3s steps(6) infinite; /*steps(n) con n = total_imagenes los num s son la velocidad de animacion*/   
+}
+@keyframes maquina_escribir { 
+  0% { background-position: 0px 0px; }
+  100% { background-position: -4650px 0px; }/*largo total de imagen 01.png*/
+ }
+
+/*Animacion sprites css*/
